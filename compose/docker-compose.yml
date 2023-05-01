@@ -22,6 +22,8 @@ services:
   mq:
     hostname: "mq"
     image: rabbitmq:3.9-management
+    ports:
+      - 15672:15672
     restart: "no"
     env_file:
       - .env
