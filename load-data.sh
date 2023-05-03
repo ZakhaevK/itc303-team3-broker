@@ -29,5 +29,5 @@ echo 'PHYSICAL DEVICES:'
 devices=$(docker exec test-lm-1 python -m broker-cli pd ls --plain)
 echo -e "listed devices:\n${devices}"
 echo 'LOGICAL DEVICES:'
-devices=$(docker exec test-lm-1 python -m broker-cli ld ls)
+devices=$(docker exec test-lm-1 python -m broker-cli ld ls --plain)
 echo -e "listed devices:\n${devices}"

@@ -271,7 +271,10 @@ def main() -> None:
         if args.cmd2 == 'ls':
             devs = dao.get_logical_devices()
             tmp_list = list(map(lambda dev: dev.dict(exclude={'properties'}), devs))
-            print(pretty_print_json(tmp_list))
+            if not args.plain:
+                print(pretty_print_json(tmp_list))
+            else:
+                plain_pd_list(devs)
         elif args.cmd2 == 'create':
             dev = LogicalDevice.parse_obj(dict_from_file_or_string())
             print(dao.create_logical_device(dev))
