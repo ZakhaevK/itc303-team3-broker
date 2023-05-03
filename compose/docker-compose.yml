@@ -199,3 +199,18 @@ services:
       - ${DATABOLT_SHARED_DIR}/raw_data:/raw_data
     working_dir: "/home/broker/python"
     entrypoint: [ "python", "-m", "delivery.FRRED" ]
+
+  lts:
+    image: broker/python-base
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: "service_healthy"
+      mq:
+        condition: "service_healthy"
+    volumes:
+      - ../src/python:/home/broker/python
+    working_dir: "/home/broker/python"
+    entrypoint: ["python", "-m", "delivery.LTSReader"]

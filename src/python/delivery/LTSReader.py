@@ -80,7 +80,7 @@ def on_message(channel, method, properties, body):
     #
     # Message processing goes here
     #
-
+    print("HERE")
 
     # This tells RabbitMQ the message is handled and can be deleted from the queue.    
     rx_channel._channel.basic_ack(delivery_tag)
