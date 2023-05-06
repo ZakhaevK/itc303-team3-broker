@@ -3,6 +3,7 @@ version: '3.1'
 services:
   questdb:
     image: questdb/questdb:7.1.1
+    hostname: quest
     ports:
       - 9000:9000
       - 9009:9009
@@ -214,3 +215,4 @@ services:
       - ../src/python:/home/broker/python
     working_dir: "/home/broker/python"
     entrypoint: ["python", "-m", "delivery.LTSReader"]
+
