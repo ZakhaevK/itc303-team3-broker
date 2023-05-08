@@ -1,8 +1,11 @@
 version: '3.1'
 
 services:
-  db:
-    image: postgres:14.2
+  influxdb:
+    image: influxdb/influxdb:2.7.0
+    hostname: influx
+    ports: 
+      - 8086:8086
     restart: "no"
     env_file:
       - .env
@@ -17,6 +20,8 @@ services:
   mq:
     hostname: "mq"
     image: rabbitmq:3.9-management
+    ports: 
+      - 15762:15762
     restart: "no"
     env_file:
       - .env
@@ -184,3 +189,18 @@ services:
       - ${DATABOLT_SHARED_DIR}/raw_data:/raw_data
     working_dir: "/home/broker/python"
     entrypoint: [ "python", "-m", "delivery.FRRED" ]
+    
+   lts:
+    image: broker/python-base
+    restart: unless-stopped
+    env_file: 
+      - .env
+    depends_on:
+      db:
+        condition: "service_healthy" 
+      mq:
+        condition: "service_healthy"
+    volumes:
+      - ../src/python:home/broker/python
+    working_dir: "home/broker/python"
+    entrypoint: ["python", "-m", "delivery.LTSReader"]
