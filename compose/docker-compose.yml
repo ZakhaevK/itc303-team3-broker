@@ -2,10 +2,15 @@ version: '3.1'
 
 services:
   influxdb:
-    image: influxdb/influxdb:2.7.0
+    image: influxdb:2.7.0
     hostname: influx
     ports: 
       - 8086:8086
+    restart: "no"
+    env_file:
+      - .env
+  db:
+    image: postgres:14.2
     restart: "no"
     env_file:
       - .env
@@ -190,7 +195,7 @@ services:
     working_dir: "/home/broker/python"
     entrypoint: [ "python", "-m", "delivery.FRRED" ]
     
-   lts:
+  lts:
     image: broker/python-base
     restart: unless-stopped
     env_file: 
