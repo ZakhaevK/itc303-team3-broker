@@ -42,7 +42,7 @@ def json_to_line_protocol(json_msg):
   parsed_msg = json.loads(json_msg)
   l_uid = parsed_msg['l_uid']
   p_uid = parsed_msg['p_uid']
-  timestamp = int(time.mktime(parser.parse(parsed_msg['timestamp']).timetuple())*1000)
+  timestamp = int(time.mktime(parser.parse(parsed_msg['timestamp']).timetuple()))
   #ts_datetime = datetime.fromisoformat(timestamp)
   #ts_unix = int(ts_datetime.timestamp()*1000)
   measurements = parsed_msg['timeseries']
@@ -62,10 +62,10 @@ with open("../../docs/sample_messages", "r") as f:
   json_msgs = f.readlines()
   lines = [json_to_line_protocol(msg) for msg in json_msgs]
 #lines = parse_input_file()
-print(lines)
+#print(lines)
 #write lines
-write_api = client.write_api(write_options=WriteOptions(batch_size=100, flush_interval=5000, jitter_interval=400, retry_interval = 2500))
-write_api.write(bucket=bucket, org=org, record=lines, write_precision="ns")
+write_api = client.write_api(write_options=WriteOptions(batch_size=1000, flush_interval=5000, jitter_interval=400, retry_interval = 2500))
+write_api.write(bucket=bucket, org=org, record=lines, write_precision="ms")
 
 #example json msg
 #
