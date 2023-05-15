@@ -42,7 +42,7 @@ def json_to_line_protocol(json_msg):
   parsed_msg = json.loads(json_msg)
   l_uid = parsed_msg['l_uid']
   p_uid = parsed_msg['p_uid']
-  timestamp = int(time.mktime(parser.parse(parsed_msg['timestamp']).timetuple()))
+  timestamp = int(time.mktime(parser.parse(parsed_msg['timestamp']).timetuple())*1000)
   #ts_datetime = datetime.fromisoformat(timestamp)
   #ts_unix = int(ts_datetime.timestamp()*1000)
   measurements = parsed_msg['timeseries']
@@ -51,8 +51,10 @@ def json_to_line_protocol(json_msg):
     measurement_name = measurement['name']
     measurement_value = measurement['value']
     if measurement_value == "NaN":
-        continue
-    line = f"{measurement_name},l_uid={l_uid},p_uid={p_uid} value={measurement_value} {timestamp}"
+     continue
+    if measurement_name == "Device":
+      continue
+    line = f"{measurement_name},l_uid={l_uid},p_uid={p_uid} {measurement_name}={measurement_value} {timestamp}"
     lines.append(line)
   return "\n".join(lines)
 
@@ -62,9 +64,12 @@ with open("../../docs/sample_messages", "r") as f:
   json_msgs = f.readlines()
   lines = [json_to_line_protocol(msg) for msg in json_msgs]
 #lines = parse_input_file()
+
 #print(lines)
+
+
 #write lines
-write_api = client.write_api(write_options=WriteOptions(batch_size=1000, flush_interval=5000, jitter_interval=400, retry_interval = 2500))
+#write_api = client.write_api(write_options=WriteOptions())
 write_api.write(bucket=bucket, org=org, record=lines, write_precision="ms")
 
 #example json msg
