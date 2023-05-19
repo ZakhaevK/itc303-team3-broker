@@ -17,6 +17,22 @@ rx_channel = None
 mq_client = None
 finish = False
 
+from datetime import datetime
+import time
+from dateutil import parser
+import influxdb_client, os, time
+from influxdb_client import InfluxDBClient, Point, WriteOptions, WritePrecision
+from influxdb_client.client.write_api import SYNCHRONOUS
+import json
+import math
+import os
+
+#variables for connecting to the db
+##lu.cid_logger.info(f"USING TOKEN: {token}")
+
+
+
+
 
 def sigterm_handler(sig_no, stack_frame) -> None:
     """
@@ -74,16 +90,53 @@ def on_message(channel, method, properties, body):
         rx_channel._channel.basic_reject(delivery_tag)
         return
 
-    msg = json.loads(body)
-    lu.cid_logger.info(f'Accepted message {msg}', extra=msg)
+    #for now it will go hear as manually setting token, should be outside at start up
+    token = "UNABLE TO FIND TOKEN"
+    with open("../../../shared/token", 'r') as file:
+        token = file.readline().strip()
+    org = "ITC303"
+    url = "http://influx:8086"
+    bucket="DPI"
 
+#connect to the db
+    client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
+    write_api = client.write_api(write_options=SYNCHRONOUS)
+
+    try:
+        logging.info(f'USING TOKEN = {token}\n')
+        msg = json.loads(body)
+        logging.info(f'Accepted message {msg}\n', extra=msg)
+        line=[]
+        line.append(json_to_line_protocol(msg))
+        
+        logging.info(f'LINE={line}\n')
+        write_api.write(bucket=bucket, org=org, record=line, write_precision="s")
+    except Exception as e:
+        logging.info(f'Error processing message: {e}\n')
     #
     # Message processing goes here
     #
 
-
     # This tells RabbitMQ the message is handled and can be deleted from the queue.    
     rx_channel._channel.basic_ack(delivery_tag)
+
+
+def json_to_line_protocol(parsed_msg):
+    l_uid = parsed_msg['l_uid']
+    p_uid = parsed_msg['p_uid']
+    timestamp = int(time.mktime(parser.parse(parsed_msg['timestamp']).timetuple()))
+    measurements = parsed_msg['timeseries']
+
+    for measurement in measurements:
+        measurement_name = measurement['name']
+        measurement_value = measurement['value']
+
+        if measurement_value == "NaN" or measurement_name == "Device":
+            continue
+ 
+        line = f"{measurement_name},l_uid={l_uid},p_uid={p_uid} {measurement_name}={measurement_value} {timestamp}"
+        return line
+    return None
 
 
 if __name__ == '__main__':

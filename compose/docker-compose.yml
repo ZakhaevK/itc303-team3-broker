@@ -9,6 +9,17 @@ services:
     restart: "no"
     env_file:
       - .env
+    volumes:
+      - ./shared:/shared
+  tokengenerator:
+    image: influxdb:2.7.0
+    depends_on:
+      - influxdb
+    restart: "no"
+    volumes:
+      - ./shared:/shared
+      - ../src/python/scripts:/scripts
+    entrypoint: ["bash", "-c", "/scripts/token_generator.sh"]
   db:
     image: postgres:14.2
     restart: "no"
@@ -26,7 +37,7 @@ services:
     hostname: "mq"
     image: rabbitmq:3.9-management
     ports: 
-      - 15762:15762
+      - 15672:15672
     restart: "no"
     env_file:
       - .env
@@ -194,18 +205,20 @@ services:
       - ${DATABOLT_SHARED_DIR}/raw_data:/raw_data
     working_dir: "/home/broker/python"
     entrypoint: [ "python", "-m", "delivery.FRRED" ]
-    
+
   lts:
     image: broker/python-base
     restart: unless-stopped
     env_file: 
       - .env
     depends_on:
-      db:
-        condition: "service_healthy" 
       mq:
         condition: "service_healthy"
     volumes:
-      - ../src/python:home/broker/python
+      - ../src/python:/home/broker/python
+      - ./shared:/shared
     working_dir: "/home/broker/python"
     entrypoint: ["python", "-m", "delivery.LTSReader"]
+
+volumes:
+  shared:
