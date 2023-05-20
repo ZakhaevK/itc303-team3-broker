@@ -84,11 +84,8 @@ def on_message(channel, method, properties, body):
     msg = json.loads(body)
     lu.cid_logger.info(f'Accepted message {msg}', extra=msg)
 
-    #
-    # Message processing goes here
-    #
-    parse_json_msg(msg)
-#    lu.cid_logger.info(json.dumps(json.loads(get_all_inserts()), indent=2))
+    
+   syms, cols, ts = parse_json_msg(msg)
 
     # This tells RabbitMQ the message is handled and can be deleted from the queue.    
     rx_channel._channel.basic_ack(delivery_tag)
@@ -101,13 +98,13 @@ def parse_json_msg(msg: str) -> None:
     cols["p_uid"] = msg["p_uid"]
     cols["l_uid"] = msg["l_uid"]
     ts = parser.parse(msg['timestamp'])
+    return syms, cols, ts
     insert_jason_msg(syms, cols, ts)
 
 
 def insert_jason_msg(syms: str, cols: str, timestamp: str) -> None:
     name = "dpi"
     host = "quest"
-    #host = "172.16.238.10"
     port = 9009
     try:
         with Sender(host,port) as sender:
@@ -123,9 +120,7 @@ def insert_jason_msg(syms: str, cols: str, timestamp: str) -> None:
 
 
 def get_all_inserts() -> str:
-    name = "dpi"
     host = "quest"
-    #host = "172.16.238.10"
     port = 9000
 
     return requests.get(
