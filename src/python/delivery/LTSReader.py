@@ -13,17 +13,13 @@ import api.client.RabbitMQ as mq
 import BrokerConstants
 import util.LoggingUtil as lu
 
-from questdb.ingress import Sender, IngressError
-import requests
-import json
-import sys
-from dateutil import parser
+from tsdb.IoTaDecoder import parse_json_msg, insert_line_protocol
 
+import IoTaDecoder as id
 
 rx_channel = None
 mq_client = None
 finish = False
-
 
 def sigterm_handler(sig_no, stack_frame) -> None:
     """
@@ -84,51 +80,11 @@ def on_message(channel, method, properties, body):
     msg = json.loads(body)
     lu.cid_logger.info(f'Accepted message {msg}', extra=msg)
 
-    
-   syms, cols, ts = parse_json_msg(msg)
+    parse_json_msg(msg)
 
     # This tells RabbitMQ the message is handled and can be deleted from the queue.    
     rx_channel._channel.basic_ack(delivery_tag)
 
-
-def parse_json_msg(msg: str) -> None:
-    #syms = {"p_uid" : f'{msg["p_uid"]}', "l_uid" : f'{msg["l_uid"]}'}
-    syms = {}
-    cols = {item['name'].replace("(","").replace(")","").replace('-','_').replace('/',''):item['value'] for item in msg["timeseries"]}
-    cols["p_uid"] = msg["p_uid"]
-    cols["l_uid"] = msg["l_uid"]
-    ts = parser.parse(msg['timestamp'])
-    return syms, cols, ts
-    insert_jason_msg(syms, cols, ts)
-
-
-def insert_jason_msg(syms: str, cols: str, timestamp: str) -> None:
-    name = "dpi"
-    host = "quest"
-    port = 9009
-    try:
-        with Sender(host,port) as sender:
-            sender.row(
-                name,
-                symbols=syms,
-                columns=cols,
-                at=timestamp
-            )
-            sender.flush()
-    except IngressError as e:
-        sys.stderr.write(f'error: {e}\n')
-
-
-def get_all_inserts() -> str:
-    host = "quest"
-    port = 9000
-
-    return requests.get(
-        f'http://{host}:{port}/exec',
-        {
-            'query':'dpi ORDER BY l_uid;'
-        }
-    ).text
 
 
 if __name__ == '__main__':
