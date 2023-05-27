@@ -15,7 +15,7 @@ import util.LoggingUtil as lu
 
 from tsdb.IoTaDecoder import parse_json_msg, insert_line_protocol
 
-import IoTaDecoder as id
+#import IoTaDecoder as id
 
 rx_channel = None
 mq_client = None
@@ -80,11 +80,12 @@ def on_message(channel, method, properties, body):
     msg = json.loads(body)
     lu.cid_logger.info(f'Accepted message {msg}', extra=msg)
 
-    parse_json_msg(msg)
-
+    try:
+        parse_json_msg(msg)
+    except Exception as e:
+        logging.info(f'lts some exception occured: {e}')
     # This tells RabbitMQ the message is handled and can be deleted from the queue.    
     rx_channel._channel.basic_ack(delivery_tag)
-
 
 
 if __name__ == '__main__':

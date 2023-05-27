@@ -14,12 +14,11 @@ def parse_json_msg(msg: str) -> None:
     """
     #syms = {"p_uid" : f'{msg["p_uid"]}', "l_uid" : f'{msg["l_uid"]}'}
     syms = {}
-    cols["p_uid"] = msg["p_uid"]
-    cols["l_uid"] = msg["l_uid"]
-    cols = {item['name'].replace("(","").replace(")","").replace('-','_').replace('/',''):item['value'] for item in msg["timeseries"]}
+    cols = {clean(item['name']):item['value'] for item in msg['timeseries']}
+    cols['p_uid'] = msg['p_uid']
+    cols['l_uid'] = msg['l_uid']
     timestamp = parser.parse(msg['timestamp'])
-    #return syms, cols, timestamp
-    insert_line_protocol(syms, cols, ts)
+    insert_line_protocol(syms, cols, timestamp)
 
 
 def insert_line_protocol(syms: str, cols: str, timestamp: str) -> None:
@@ -27,7 +26,7 @@ def insert_line_protocol(syms: str, cols: str, timestamp: str) -> None:
     This function will insert a message via line protocol to questdb
     """
     try:
-        with Sender(tsdb_host,tsdb_port_name) as sender:
+        with Sender(tsdb_host_name,tsdb_port) as sender:
             sender.row(
                 bucket_name,
                 symbols=syms,
@@ -37,6 +36,10 @@ def insert_line_protocol(syms: str, cols: str, timestamp: str) -> None:
             sender.flush()
     except IngressError as e:
         sys.stderr.write(f'error: {e}\n')
+
+
+def clean(msg: str) -> str:
+    return msg.replace('(','').replace(')','').replace('/','')
 
 
 def get_all_inserts() -> str:
