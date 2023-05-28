@@ -181,7 +181,7 @@ def test_invalid_db_names():
     assert(clean_names("test)") == "test")
     assert(clean_names("test-") == "test")
 
-import sys
+
 #tests to confirm insert into db
 def test_db_insert():
     hostname = "localhost"
@@ -205,7 +205,7 @@ def test_db_insert():
     #parse message
     syms, cols, timestamp = parse_json_msg(json.loads(msg))
     #insert into db
-    insert_line_protocol(syms, cols, timestamp, hostname, insert_port, bucket_name)
+    request = insert_line_protocol(syms, cols, timestamp, hostname, insert_port, bucket_name)
     #sleep
     time.sleep(1)
     last_insert = requests.get(
@@ -213,5 +213,31 @@ def test_db_insert():
         {
             'query':f'SELECT * FROM {bucket_name} LIMIT -1'
         }).text
+    assert(returni)
     assert(last_insert == '"p_uid","l_uid","battery v","timestamp"\r\n"301","276",4.16008997,"2023-01-30T06:21:56.000000Z"\r\n')
 
+
+def test_db_invalid_host_insert():
+    hostname = "locaqlhost"
+    insert_port = 9009
+    bucket_name = "testingtests"
+    msg = """
+    {
+      "broker_correlation_id": "83d04e6f-db16-4280-8337-53f11b2335c6",
+      "p_uid": 301,
+      "l_uid": 276,
+      "timestamp": "2023-01-30T06:21:56Z",
+      "timeseries": [
+        {
+          "name": "battery (v)",
+          "value": 4.16008997
+        }
+      ]
+    }
+    """
+    #parse message
+    syms, cols, timestamp = parse_json_msg(json.loads(msg))
+    #insert into db
+    request = insert_line_protocol(syms, cols, timestamp, hostname, insert_port, bucket_name)
+    #confirm insert failed
+    assert(request == 400)
