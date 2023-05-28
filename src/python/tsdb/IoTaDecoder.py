@@ -1,6 +1,5 @@
 from questdb.ingress import Sender, IngressError
 import requests
-import json
 import sys
 from dateutil import parser
 
@@ -12,11 +11,11 @@ def parse_json_msg(msg: str) -> None:
     """
     This function is the main message parser, it will convert IoTa format to something TSDB can insert
     """
-    #syms = {"p_uid" : f'{msg["p_uid"]}', "l_uid" : f'{msg["l_uid"]}'}
-    syms = {}
+    syms = {"p_uid" : f'{msg["p_uid"]}', "l_uid" : f'{msg["l_uid"]}'}
+    #syms = {}
     cols = {clean(item['name']):item['value'] for item in msg['timeseries']}
-    cols['p_uid'] = msg['p_uid']
-    cols['l_uid'] = msg['l_uid']
+    #cols['p_uid'] = msg['p_uid']
+    #cols['l_uid'] = msg['l_uid']
     timestamp = parser.parse(msg['timestamp'])
     insert_line_protocol(syms, cols, timestamp)
 
@@ -40,7 +39,7 @@ def insert_line_protocol(syms: str, cols: str, timestamp: str) -> None:
 
 def clean(msg: str) -> str:
     return msg.replace('(','').replace(')','').replace('/','')
-
+    return msg.replace('(','').replace(')',"").replace('/','')
 
 def get_all_inserts() -> str:
     """
