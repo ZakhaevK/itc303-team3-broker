@@ -44,8 +44,10 @@ def insert_line_protocol(syms: str, cols: str, timestamp: str, hostname=tsdb_hos
                 at=timestamp
             )
             sender.flush()
+        return 200
     except IngressError as e:
         sys.stderr.write(f'error: {e}\n')
+        return 400
 
 
 def clean_names(msg: str) -> str:
