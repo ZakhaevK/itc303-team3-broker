@@ -213,6 +213,5 @@ def test_db_insert():
         {
             'query':f'SELECT * FROM {bucket_name} LIMIT -1'
         }).text
-    sys.stderr.write(f'{last_insert}')
     assert(last_insert == '"p_uid","l_uid","battery v","timestamp"\r\n"301","276",4.16008997,"2023-01-30T06:21:56.000000Z"\r\n')
 
