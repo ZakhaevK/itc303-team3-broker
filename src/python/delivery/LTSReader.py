@@ -81,7 +81,8 @@ def on_message(channel, method, properties, body):
     lu.cid_logger.info(f'Accepted message {msg}', extra=msg)
 
     try:
-        parse_json_msg(msg)
+        syms, cols, timestamp = parse_json_msg(msg)
+        insert_line_protocol(syms, cols, timestamp)
     except Exception as e:
         logging.info(f'lts some exception occured: {e}')
     # This tells RabbitMQ the message is handled and can be deleted from the queue.    
