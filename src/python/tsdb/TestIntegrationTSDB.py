@@ -1,4 +1,3 @@
-from asyncio import queues
 import subprocess
 import time
 import requests
@@ -72,6 +71,7 @@ def test_send_invalid_msg():
     """
     result = send_msg(msg)
     #should still be last insert!
+    time.sleep(1)
     last_insert = get_last_insert()
     assert(result.stdout == "Message published\n")
     assert(last_insert == '"p_uid","l_uid","battery v","timestamp"\r\n"999","666",6.66,"2023-01-30T06:21:56.000000Z"\r\n')

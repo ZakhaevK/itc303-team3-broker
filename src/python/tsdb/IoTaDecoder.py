@@ -31,7 +31,7 @@ def parse_json_msg(msg: str) -> None:
         return None, None, None
 
 
-def insert_line_protocol(syms: str, cols: str, timestamp: str, hostname=tsdb_host_name, port=tsdb_port, bucket=bucket_name) -> None:
+def insert_line_protocol(syms: str, cols: str, timestamp: str, hostname=tsdb_host_name, port=tsdb_port, bucket=bucket_name) -> int:
     """
     This function will insert a message via line protocol to questdb
     """
