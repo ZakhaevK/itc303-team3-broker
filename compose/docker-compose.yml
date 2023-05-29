@@ -214,5 +214,5 @@ services:
     volumes:
       - ../src/python:/home/broker/python
     working_dir: "/home/broker/python"
-    entrypoint: ["python", "-m", "delivery.LTSReader"]
+    entrypoint: ["python", "-m", "tsdb.IoTaDecoder"]
 
