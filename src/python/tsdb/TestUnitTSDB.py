@@ -1,6 +1,7 @@
 from IoTaDecoder import *
 import json
 import time
+import requests
 
 ## UNIT TESTS
 
@@ -184,7 +185,7 @@ def test_invalid_db_names():
 
 #tests to confirm insert into db
 def test_db_insert():
-    hostname = "localhost"
+    hostname = "quest"
     insert_port = 9009
     receive_port = 9000
     bucket_name = "testingtests"
@@ -213,7 +214,7 @@ def test_db_insert():
         {
             'query':f'SELECT * FROM {bucket_name} LIMIT -1'
         }).text
-    assert(returni)
+    assert(request == 200)
     assert(last_insert == '"p_uid","l_uid","battery v","timestamp"\r\n"301","276",4.16008997,"2023-01-30T06:21:56.000000Z"\r\n')
 
 

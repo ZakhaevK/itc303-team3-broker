@@ -103,25 +103,25 @@ def on_message(channel, method, properties, body):
         return
 
     try:
-        msg = json.loads(body)
-        lu.cid_logger.info(f'Received Message: {msg}', extra=msg)
+        #msg = json.loads(body)
+        #lu.cid_logger.info(f'Received Message: {msg}', extra=msg)
 
         #TODO:add checks and create uid for puid + luid
         #logging.info(dao.get_current_device_mapping(msg['l_uid']))
 
-        syms, cols, timestamp = parse_json_msg(msg)
+        syms, cols, timestamp = parse_json_msg(body)
         if syms is not None:
             insert_line_protocol(syms, cols, timestamp)
             rx_channel._channel.basic_ack(delivery_tag)
             return
     except Exception as e:
         lu.cid_logger.error(f'Unable to process LTS message: {e}')
-        rx_channel.channel.basic_reject(delivery_tag)
-        return
+        #rx_channel.channel.basic_reject(delivery_tag)
+        #return
 
     # This tells RabbitMQ the message is handled and can be deleted from the queue
-    #rx_channel._channel.basic_ack(delivery_tag)
-    rx_channel.channel.basic_reject(delivery_tag)
+    rx_channel._channel.basic_ack(delivery_tag)
+    #rx_channel.channel.basic_reject(delivery_tag)
 
 def parse_json_msg(msg: str) -> str:
     """
