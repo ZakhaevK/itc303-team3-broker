@@ -14,12 +14,28 @@ services:
       interval: 10s
       retries: 10
 
+  promdb:
+    hostname: "prom"
+    image: prom/prometheus
+    restart: "no"
+    volumes:
+      - ../config/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports: 
+      - 9090:9090
+    healthcheck:
+      test: ["CMD", "wget", "http://localhost:9090"]
+      interval: 10s
+      timeout: 15s
+      retries: 10
+
   mq:
     hostname: "mq"
     image: rabbitmq:3.9-management
     restart: "no"
     env_file:
       - .env
+    ports:
+      - 15672:15672
     volumes:
       - ../config/rabbitmq:/etc/rabbitmq
     healthcheck:
