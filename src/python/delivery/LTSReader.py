@@ -101,18 +101,15 @@ def on_message(channel, method, properties, body):
 #connect to the db
     client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
     write_api = client.write_api(write_options=SYNCHRONOUS)
-
-    try:
-        logging.info(f'USING TOKEN = {token}\n')
-        msg = json.loads(body)
-        logging.info(f'Accepted message {msg}\n', extra=msg)
-        line=[]
-        line.append(json_to_line_protocol(msg))
-        
-        logging.info(f'LINE={line}\n')
-        write_api.write(bucket=bucket, org=org, record=line, write_precision="s")
-    except Exception as e:
-        logging.info(f'Error processing message: {e}\n')
+    
+    tosend = []
+    parsed = parse_msg(msg)
+    if parsed is not None:
+        tosend.append(parsed)
+        try:
+            write_api.write(bucket=bucket, org=org, record=line, write_precision="s")
+        except Exception as e:
+            logging.info(f'Error processing message: {e}\n')
     #
     # Message processing goes here
     #
@@ -121,16 +118,25 @@ def on_message(channel, method, properties, body):
     rx_channel._channel.basic_ack(delivery_tag)
 
 
-def json_to_line_protocol(parsed_msg):
-    l_uid = parsed_msg['l_uid']
-    p_uid = parsed_msg['p_uid']
-    timestamp = int(time.mktime(parser.parse(parsed_msg['timestamp']).timetuple()))
-    measurements = parsed_msg['timeseries']
+def parse_msg(msg):
+    line = []
+    if not isinstance(msg, dict):
+        try:
+            msg = json.loads(msg)
+        except Exception as e:
+            logging.info(f'error: wrong format {e}\n')
+            return None
+
+    l_uid = msg['l_uid']
+    p_uid = msg['p_uid']
+    timestamp = int(time.mktime(parser.parse(msg['timestamp']).timetuple()))
+    measurements = msg['timeseries']
 
     for measurement in measurements:
-        measurement_name = measurement['name']
+        measurement_name = clean_names(measurement['name'])
         measurement_value = measurement['value']
 
+        #TODO: fix me
         if measurement_value == "NaN" or measurement_name == "Device":
             continue
  
@@ -138,6 +144,15 @@ def json_to_line_protocol(parsed_msg):
         return line
     return None
 
+def clean_names(msg: str) -> str:
+    """
+    Table and column names must not contain any of the forbidden characters: 
+    \n \r ? , : " ' \\ / \0 ) ( + * ~ %
+    Additionally, table name must not start or end with the . character. 
+    Column name must not contain . -
+    """
+    translation_table = str.maketrans("", "", "\n\r?,:\"'\\/).(+*~%.-")
+    return msg.translate(translation_table)
 
 if __name__ == '__main__':
     # Docker sends SIGTERM to tell the process the container is stopping so set
