@@ -55,7 +55,7 @@ def test_send_valid_msg():
     time.sleep(1)
     last_insert = get_last_insert()
     assert(result.stdout == "Message published\n")
-    assert(last_insert == '"p_uid","l_uid","battery v","timestamp"\r\n"999","666",6.66,"2023-01-30T06:21:56.000000Z"\r\n')
+    assert(last_insert == '"p_uid","l_uid","broker_correlation_id","battery_v","timestamp"\r\n"999","666","83d04e6f-db16-4280-8337-53f11b2335c6",6.66,"2023-01-30T06:21:56.000000Z"\r\n')
 
 
 def test_send_invalid_msg():
@@ -74,7 +74,7 @@ def test_send_invalid_msg():
     time.sleep(1)
     last_insert = get_last_insert()
     assert(result.stdout == "Message published\n")
-    assert(last_insert == '"p_uid","l_uid","battery v","timestamp"\r\n"999","666",6.66,"2023-01-30T06:21:56.000000Z"\r\n')
+    assert(last_insert == '"p_uid","l_uid","broker_correlation_id","battery_v","timestamp"\r\n"999","666","83d04e6f-db16-4280-8337-53f11b2335c6",6.66,"2023-01-30T06:21:56.000000Z"\r\n')
 
 
 #check we can still send a message after a bad one
@@ -97,4 +97,4 @@ def test_send_valid_msg2():
     time.sleep(1)
     last_insert = get_last_insert()
     assert(result.stdout == "Message published\n")
-    assert(last_insert == '"p_uid","l_uid","battery v","timestamp"\r\n"123","456",9.99,"2023-01-30T06:22:56.000000Z"\r\n')
+    assert(last_insert == '"p_uid","l_uid","broker_correlation_id","battery_v","timestamp"\r\n"123","456","83d04e6f-db16-4280-8337-53f11b2335c6",9.99,"2023-01-30T06:22:56.000000Z"\r\n')

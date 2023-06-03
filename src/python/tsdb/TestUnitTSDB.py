@@ -23,8 +23,8 @@ def test_receive_valid_one_ts_msg():
     """
     #parse message
     syms, cols, timestamp = parse_json_msg(json.loads(msg))
-    assert syms == {'l_uid': '276', 'p_uid': '301'}
-    assert cols == {'battery v': 4.16008997}
+    assert syms == {'l_uid': '276', 'p_uid': '301', 'broker_correlation_id': '83d04e6f-db16-4280-8337-53f11b2335c6'}
+    assert cols == {'battery_v': 4.16008997}
     assert timestamp.isoformat() == '2023-01-30T06:21:56+00:00'
 
 
@@ -53,8 +53,8 @@ def test_receive_valid_multi_ts_msg():
     """
     #parse msg
     syms, cols, timestamp = parse_json_msg(json.loads(msg))
-    assert syms == {'l_uid': '2111', 'p_uid': '31'}
-    assert cols == {'1_Temperature': 21.60000038, 'battery v': 4.16008997, 'pulse_count': 1}
+    assert syms == {'l_uid': '2111', 'p_uid': '31', 'broker_correlation_id': '83d04e6f-db16-4280-8337-53f11b2335c6'}
+    assert cols == {'1_Temperature': 21.60000038, 'battery_v': 4.16008997, 'pulse_count': 1}
     assert timestamp.isoformat() == '2023-01-30T06:21:56+00:00'
 
 
@@ -83,8 +83,8 @@ def test_receive_invalid_fmt_msg():
     """
     #pass it valid string formatting instead
     syms, cols, timestamp = parse_json_msg(msg)
-    assert syms == {'l_uid': '2111', 'p_uid': '31'}
-    assert cols == {'1_Temperature': 21.60000038, 'battery v': 4.16008997, 'pulse_count': 1}
+    assert syms == {'l_uid': '2111', 'p_uid': '31', 'broker_correlation_id': '83d04e6f-db16-4280-8337-53f11b2335c6'}
+    assert cols == {'1_Temperature': 21.60000038, 'battery_v': 4.16008997, 'pulse_count': 1}
     assert timestamp.isoformat() == '2023-01-30T06:21:56+00:00'
 
 
@@ -101,6 +101,27 @@ def test_receive_invalid_fmtd_msg():
     assert(syms == None)
     assert(cols == None)
     assert(timestamp == None)
+
+
+def test_receive_missing_broker_id_msg():
+    msg = """
+    {
+      "p_uid": 301,
+      "l_uid": 276,
+      "timestamp": "2023-01-30T06:21:56Z",
+      "timeseries": [
+        {
+          "name": "battery (v)",
+          "value": 4.16008997
+        }
+      ]
+    }
+    """
+    syms, cols, timestamp = parse_json_msg(json.loads(msg))
+    assert(syms == None)
+    assert(cols == None)
+    assert(timestamp == None)
+
 
 
 def test_receive_missing_puid_msg():
@@ -167,6 +188,7 @@ def test_receive_missing_ts_msg():
 
 #tests for cleaning names for db
 def test_invalid_db_names():
+    assert(clean_names("test test") == "test_test")
     assert(clean_names("test\"") == "test")
     assert(clean_names("test\n") == "test")
     assert(clean_names("test\r") == "test")
@@ -215,7 +237,7 @@ def test_db_insert():
             'query':f'SELECT * FROM {bucket_name} LIMIT -1'
         }).text
     assert(request == 200)
-    assert(last_insert == '"p_uid","l_uid","battery v","timestamp"\r\n"301","276",4.16008997,"2023-01-30T06:21:56.000000Z"\r\n')
+    assert(last_insert == '"p_uid","l_uid","broker_correlation_id","battery_v","timestamp"\r\n"301","276","83d04e6f-db16-4280-8337-53f11b2335c6",4.16008997,"2023-01-30T06:21:56.000000Z"\r\n')
 
 
 def test_db_invalid_host_insert():

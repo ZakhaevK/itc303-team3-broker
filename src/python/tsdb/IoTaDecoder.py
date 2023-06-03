@@ -177,6 +177,7 @@ def clean_names(msg: str) -> str:
     Additionally, table name must not start or end with the . character. 
     Column name must not contain . -
     """
+    msg = msg.replace(" ", "_")
     translation_table = str.maketrans("", "", "\n\r?,:\"'\\/).(+*~%.-")
     return msg.translate(translation_table)
 
