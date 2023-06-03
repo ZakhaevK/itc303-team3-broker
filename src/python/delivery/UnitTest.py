@@ -1,4 +1,4 @@
-from TestFunctions import *
+from delivery.LTSReader import parse_msg, clean_names
 import json
 import time
 import requests
@@ -147,4 +147,19 @@ def test_receive_missing_ts_msg():
     parsed = parse_msg(msg)
     assert(parsed == None)
 
+
+def test_invalid_db_names():
+    assert(clean_names("test test") == "test_test")
+    assert(clean_names("test\"") == "test")
+    assert(clean_names("test\n") == "test")
+    assert(clean_names("test\r") == "test")
+    assert(clean_names("test.") == "test")
+    assert(clean_names("test?") == "test")
+    assert(clean_names("test*") == "test")
+    assert(clean_names("test~") == "test")
+    assert(clean_names("test%") == "test")
+    assert(clean_names("test'") == "test")
+    assert(clean_names("test\\") == "test")
+    assert(clean_names("test/") == "test")
+    assert(clean_names("test-") == "test")
 
