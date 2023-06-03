@@ -155,7 +155,7 @@ def parse_msg(msg):
 def clean_names(msg: str) -> str:
     """
     Table and column names must not contain any of the forbidden characters: 
-    \n \r ? , : " ' \\ / \0 ) ( + * ~ %
+    \n \r ? , : " ' \\ / \0 + * ~ %
     Additionally, table name must not start or end with the . character. 
     Column name must not contain . -
     """
