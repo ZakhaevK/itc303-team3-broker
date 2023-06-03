@@ -52,8 +52,7 @@ def get_last_insert():
     result = query_api.query(query=query)
     records = result[0].records[0]
     #this does not get all of the info we submit, just enough to confirm it was accepted into DB
-    return str(
-        f'p_uid:{records["p_uid"]},l_uid:{records["l_uid"]},{records["_field"]}:{records["_value"]}')
+    return str(f'p_uid:{records["p_uid"]},l_uid:{records["l_uid"]},{records["_field"]}:{records["_value"]}')
 
 
 
