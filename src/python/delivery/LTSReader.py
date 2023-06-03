@@ -98,16 +98,16 @@ def on_message(channel, method, properties, body):
     url = "http://influx:8086"
     bucket="DPI"
 
-#connect to the db
+    #connect to the db
     client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
     write_api = client.write_api(write_options=SYNCHRONOUS)
-    
+
     tosend = []
-    parsed = parse_msg(msg)
+    parsed = parse_msg(body)
     if parsed is not None:
         tosend.append(parsed)
         try:
-            write_api.write(bucket=bucket, org=org, record=line, write_precision="s")
+            write_api.write(bucket=bucket, org=org, record=tosend, write_precision="s")
         except Exception as e:
             logging.info(f'Error processing message: {e}\n')
     #
@@ -118,31 +118,39 @@ def on_message(channel, method, properties, body):
     rx_channel._channel.basic_ack(delivery_tag)
 
 
+
 def parse_msg(msg):
-    line = []
+    #line = []
     if not isinstance(msg, dict):
         try:
             msg = json.loads(msg)
         except Exception as e:
             logging.info(f'error: wrong format {e}\n')
             return None
+    try:
+        broker_correlation_id = msg['broker_correlation_id']
+        l_uid = msg['l_uid']
+        p_uid = msg['p_uid']
+        timestamp = int(time.mktime(parser.parse(msg['timestamp']).timetuple()))
+        measurements = msg['timeseries']
 
-    l_uid = msg['l_uid']
-    p_uid = msg['p_uid']
-    timestamp = int(time.mktime(parser.parse(msg['timestamp']).timetuple()))
-    measurements = msg['timeseries']
+        measures = ""
+        for measurement in measurements:
+            measurement_name = clean_names(measurement['name'])
+            measurement_value = measurement['value']
 
-    for measurement in measurements:
-        measurement_name = clean_names(measurement['name'])
-        measurement_value = measurement['value']
-
-        #TODO: fix me
-        if measurement_value == "NaN" or measurement_name == "Device":
-            continue
+            #TODO: fix me
+            if measurement_value == "NaN" or measurement_name == "Device":
+                continue
  
-        line = f"{measurement_name},l_uid={l_uid},p_uid={p_uid} {measurement_name}={measurement_value} {timestamp}"
-        return line
-    return None
+            #append measurements for line
+            measures += f"{measurement_name}={measurement_value},"
+        return f"{broker_correlation_id},l_uid={l_uid},p_uid={p_uid} " + measures[0:-1] + f" {timestamp}"
+    except Exception as e:
+        #sys.stderr.write(f'Error message: {e}\n')
+        logging.info(f'error: missing information {e}\n')
+        return None
+
 
 def clean_names(msg: str) -> str:
     """
@@ -151,8 +159,10 @@ def clean_names(msg: str) -> str:
     Additionally, table name must not start or end with the . character. 
     Column name must not contain . -
     """
-    translation_table = str.maketrans("", "", "\n\r?,:\"'\\/).(+*~%.-")
+    msg = msg.replace(" ", "_")
+    translation_table = str.maketrans("", "", "\n\r?,:\"'\\/.+*~%.-")
     return msg.translate(translation_table)
+
 
 if __name__ == '__main__':
     # Docker sends SIGTERM to tell the process the container is stopping so set
