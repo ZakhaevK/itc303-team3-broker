@@ -2,9 +2,10 @@ import json
 import time
 import time
 from dateutil import parser
+import sys
 
 def parse_msg(msg):
-    line = []
+    #line = []
     if not isinstance(msg, dict):
         try:
             msg = json.loads(msg)
@@ -18,6 +19,7 @@ def parse_msg(msg):
         timestamp = int(time.mktime(parser.parse(msg['timestamp']).timetuple()))
         measurements = msg['timeseries']
 
+        measures = ""
         for measurement in measurements:
             measurement_name = clean_names(measurement['name'])
             measurement_value = measurement['value']
@@ -27,10 +29,10 @@ def parse_msg(msg):
                 continue
  
             #append measurements for line
-            measurements += f"{measurement_name}={measurement_value}"
-        line = f"{broker_correlation_id},l_uid={l_uid},p_uid={p_uid} " + measurements + " {timestamp}"
-        return line
+            measures += f"{measurement_name}={measurement_value},"
+        return f"{broker_correlation_id},l_uid={l_uid},p_uid={p_uid} " + measures[0:-1] + f" {timestamp}"
     except Exception as e:
+        sys.stderr.write(f'Error message: {e}\n')
         #logging.info(f'error: missing information {e}\n')
         return None
 
@@ -42,5 +44,6 @@ def clean_names(msg: str) -> str:
     Additionally, table name must not start or end with the . character. 
     Column name must not contain . -
     """
+    msg = msg.replace(" ", "_")
     translation_table = str.maketrans("", "", "\n\r?,:\"'\\/.+*~%.-")
     return msg.translate(translation_table)
