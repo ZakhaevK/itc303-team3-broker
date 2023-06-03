@@ -138,7 +138,7 @@ def parse_json_msg(msg: str) -> str:
             return None, None, None
 
     try:
-        syms = {"p_uid" : f'{msg["p_uid"]}', "l_uid" : f'{msg["l_uid"]}'}
+        syms = {"p_uid" : f'{msg["p_uid"]}', "l_uid" : f'{msg["l_uid"]}', "broker_correlation_id" : f'{msg["broker_correlation_id"]}'}
         cols = {clean_names(item['name']):item['value'] for item in msg['timeseries']}
         timestamp = parser.parse(msg['timestamp'])
         return syms, cols, timestamp
