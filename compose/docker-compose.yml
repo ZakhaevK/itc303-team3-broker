@@ -11,15 +11,6 @@ services:
       - .env
     volumes:
       - ./shared:/shared
-  tokengenerator:
-    image: influxdb:2.7.0
-    depends_on:
-      - influxdb
-    restart: "no"
-    volumes:
-      - ./shared:/shared
-      - ../src/python/scripts:/scripts
-    entrypoint: ["bash", "-c", "/scripts/token_generator.sh"]
   db:
     image: postgres:14.2
     restart: "no"
