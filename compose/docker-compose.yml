@@ -14,6 +14,13 @@ services:
       interval: 10s
       retries: 10
 
+  json:
+    image: quay.io/prometheuscommunity/json-exporter:latest
+    volumes:
+      - ../config/config.yml:/config.yml
+    ports:
+      - 7979:7979
+
   promdb:
     hostname: "prom"
     image: prom/prometheus
@@ -27,6 +34,37 @@ services:
       interval: 10s
       timeout: 15s
       retries: 10
+
+  lts:
+    image: broker/python-base
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: "service_healthy"
+      mq:
+        condition: "service_healthy"
+    volumes:
+      - ../src/python:/home/broker/python
+    working_dir: "/home/broker/python"
+    entrypoint: ["python", "-m", "promdelivery.PromReader"]
+
+  server:
+    image: broker/python-base
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: "service_healthy"
+      mq:
+        condition: "service_healthy"
+    volumes:
+      - ../src/python:/home/broker/python
+    working_dir: "/home/broker/python"
+    entrypoint: ["python", "-m", "http.server", "8080"]
+   
 
   mq:
     hostname: "mq"

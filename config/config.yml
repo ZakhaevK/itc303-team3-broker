@@ -1,12 +1,15 @@
+---
 modules:
   default:
     metrics:
-    - name: sensor 
-      epochTimestamp: "{ .timestamp }"
-      help: sensor and associated values   
-      values:
-        broker_id: "{ .broker_correlation_id }"
-        l_uid: "{ .l_uid }"
-        p_uid: "{ .p_uid }"
-        name: "{ .timeseries[*].name }"
-        value: "{ .timeseries[*].value }" 
+    - name: sensor
+      type: object
+      path: "{ @ }"
+      help: sensor and associated values 
+      labels:
+        broker_id: "{ $.broker_correlation_id }" 
+        name: "{ $.timeseries[*].name }"
+        luid: "{ $.l_uid }"         
+      values:      
+        puid: "{ $.p_uid }"                       
+        value: "{ $.timeseries[*].value }" 
