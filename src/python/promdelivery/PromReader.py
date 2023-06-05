@@ -6,7 +6,7 @@ It can be used as a template for any program that wants to read from the logical
 timeseries exchange. To do that, change the queue name to something unique.
 """
 
-import asyncio, json, logging, signal
+import asyncio, json, logging, signal, os
 
 from pika.exchange_type import ExchangeType
 import api.client.RabbitMQ as mq
@@ -82,13 +82,19 @@ def on_message(channel, method, properties, body):
 
     msg = json.loads(body)
     lu.cid_logger.info(f'Accepted message {msg}', extra=msg)
+    
+    lu.cid_logger.info(f'{os.getcwd()}', extra=msg)
 
     #
     # Message processing goes here
     #
 
+    #lu.cid_logger.info("body: "+ str(body))
+
+    #lu.cid_logger.info("msg: " + str(msg))
+
     with open('data.json', 'w') as f:
-        f.write(msg)
+        json.dump(msg, f)
 
 
     # This tells RabbitMQ the message is handled and can be deleted from the queue.    

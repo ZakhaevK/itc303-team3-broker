@@ -21,13 +21,13 @@
 
   ## gather the metrics from third party json sources, via the json exporter
   - job_name: json
-    scrape_interval: 0s300ms
+    scrape_interval: 3s
     metrics_path: /probe
     params:
       module: [default]
     static_configs:
       - targets:
-        - http://host.docker.internal:8080/config/data.json
+        - http://host.docker.internal:8080/src/python/data.json
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
