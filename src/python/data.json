@@ -1,1 +1,12 @@
-{"broker_correlation_id": "4798124-3094032", "p_uid": 101, "l_uid": 102, "timestamp": "2023-04-21T10:45:00Z", "timeseries": [{"name": "Test Type", "value": "22"}]}
+{
+    "broker_correlation_id": "83d04e6f-db16-4280-8337-53f11b2335c6",
+    "p_uid": 1000,
+    "l_uid": 666,
+    "timestamp": "2023-01-31T06:21:56Z",
+    "timeseries": [
+    {
+        "name": "battery (v)",
+        "value": 6.66
+    }
+    ]
+}
