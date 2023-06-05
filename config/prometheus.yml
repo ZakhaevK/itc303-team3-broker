@@ -27,7 +27,7 @@
       module: [default]
     static_configs:
       - targets:
-        - http://host.docker.internal:8080/src/python/data.json
+        - http://host.docker.internal:8080/data.json
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target

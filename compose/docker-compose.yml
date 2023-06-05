@@ -63,7 +63,9 @@ services:
     volumes:
       - ../src/python:/home/broker/python
     working_dir: "/home/broker/python"
-    entrypoint: ["python", "-m", "http.server", "8080"]
+    entrypoint: ["python3", "-m", "http.server", "8080"]
+    ports:
+      - 8080:8080
    
 
   mq:
