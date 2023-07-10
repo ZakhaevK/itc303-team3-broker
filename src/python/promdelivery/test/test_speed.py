@@ -61,7 +61,7 @@ def multi_insert_time_test():
     for i in range(1000):
         msg, val = generate_message()
         send_message(msg)      
-        time.sleep(300)  
+        time.sleep(0.3)  
         # while True:
         #     response = get_db_response()
         #     test_val = response["data"]["result"][0]["value"][1]
@@ -72,6 +72,12 @@ def multi_insert_time_test():
     total_time = end_time - start_time
     print("Time for multi (1000) insert: " + str(total_time))
 
+def query_time_test():
+    start_time = time.time()
+    response = get_db_response()
+    end_time = time.time()
+
 if __name__ == "__main__":
     single_insert_time_test()
-    multi_insert_time_test()
+    query_time_test()
+    multi_insert_time_test()    
