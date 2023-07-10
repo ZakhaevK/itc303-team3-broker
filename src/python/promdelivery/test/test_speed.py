@@ -76,6 +76,7 @@ def query_time_test():
     start_time = time.time()
     response = get_db_response()
     end_time = time.time()
+    print("Time for a single query: " + str(end_time - start_time))
 
 if __name__ == "__main__":
     single_insert_time_test()
