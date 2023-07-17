@@ -234,3 +234,5 @@ swag/*
 #303 back up database
 backup-db/
 tags
+303/scripts/msgs
+303/scripts/smsgs
