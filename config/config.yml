@@ -8,8 +8,8 @@ modules:
       help: sensor and associated values 
       labels:
         broker_id: "{ $.broker_correlation_id }" 
-        name: "{ $.timeseries[*].name }"
+        name: "{ $.timeseries[0].name }"
         luid: "{ $.l_uid }"         
       values:      
         puid: "{ $.p_uid }"                       
-        value: "{ $.timeseries[*].value }" 
+        value: "{ $.timeseries[0].value }"       

@@ -1,1 +1,1 @@
-{"broker_correlation_id": "83d04e6f-db16-4280-8337-53f11b2335c6", "p_uid": 123, "l_uid": 456, "timestamp": "2023-01-30T06:22:56Z", "timeseries": [{"name": "battery (v)", "value": 9.99}]}
+{"broker_correlation_id": "83d04e6f-db16-4280-8337-53f11b2335c6", "p_uid": 0, "l_uid": 0, "timestamp": "2023-01-01T06:00:00.000000Z", "timeseries": [{"name": "Temp", "value": 2.9223951650141125}, {"name": "fault", "value": 29.831297733835978}]}
