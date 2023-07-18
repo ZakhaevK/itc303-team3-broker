@@ -1,11 +1,60 @@
-SELECT COUNT(*) FROM dpi
-SELECT * FROM dpi
-SELECT * FROM dpi WHERE Temp > 10.0
-SELECT COUNT(*) from dpi WHERE timestamp > '2023-01-05T05:00:00.000000Z'
-SELECT * from dpi WHERE timestamp > '2023-01-05T05:00:00.000000Z'
-SELECT * from dpi WHERE timestamp BETWEEN '2023-01-04' AND '2023-01-05'
-SELECT COUNT(*) from dpi WHERE timestamp BETWEEN '2023-01-04' AND '2023-01-05'
-SELECT * from dpi WHERE gnss>20.0 AND timestamp BETWEEN '2023-01-04' AND '2023-01-05'
-SELECT COUNT(*) from dpi WHERE gnss>20.0 AND timestamp BETWEEN '2023-01-04' AND '2023-01-05'
-SELECT COUNT(*) from dpi WHERE gnss>20.0 AND gnss<25.0 AND timestamp BETWEEN '2023-01-04' AND '2023-01-05'
-SELECT * from dpi WHERE gnss>20.0 AND gnss<25.0 AND timestamp BETWEEN '2023-01-04' AND '2023-01-05'
+--SELECT COUNT(*) FROM dpi
+from(bucket:"DPI")
+	|> range(start: 2023-01-01T00:00:00Z)
+	|> count()
+	
+--SELECT * FROM dpi
+from(bucket:"DPI")
+	|> range(start: 2023-01-01T00:00:00Z)
+	
+--SELECT * FROM dpi WHERE Temp > 10.0
+from(bucket: "DPI")
+	|> range(start: 2023-01-01T00:00:00Z)
+	|> filter(fn: (r) => r._field == "1_Temperature")
+	|> filter(fn: (r) => r._value < 10.0)
+	
+--SELECT COUNT(*) from dpi WHERE timestamp > '2023-01-05T05:00:00.000000Z'
+from(bucket:"DPI")
+	|> range(start: 2023-01-05T05:00:00.000000Z)
+	|> count()
+	
+--SELECT * from dpi WHERE timestamp > '2023-01-05T05:00:00.000000Z'
+from(bucket:"DPI")
+	|> range(start: 2023-01-05T05:00:00.000000Z)
+	
+--SELECT * from dpi WHERE timestamp BETWEEN '2023-01-04' AND '2023-01-05'
+from(bucket:"DPI")
+	|> range(start: 2023-01-04T00:00:00Z, stop: 2023-01-05T00:00:00Z)
+	
+--SELECT COUNT(*) from dpi WHERE timestamp BETWEEN '2023-01-04' AND '2023-01-05'
+from(bucket:"DPI")
+	|> range(start: 2023-01-04T00:00:00Z, stop: 2023-01-05T00:00:00Z)
+	|> count()
+	
+--SELECT * from dpi WHERE gnss>20.0 AND timestamp BETWEEN '2023-01-04' AND '2023-01-05'
+from(bucket:"DPI")
+	|> range(start: 2023-01-04T00:00:00Z, stop: 2023-01-05T00:00:00Z)
+	|> filter(fn: (r) => r._field == "gnss" and
+			     r._value > 20.0)
+	
+--SELECT COUNT(*) from dpi WHERE gnss>20.0 AND timestamp BETWEEN '2023-01-04' AND '2023-01-05'
+from(bucket:"DPI")
+	|> range(start: 2023-01-04T00:00:00Z, stop: 2023-01-05T00:00:00Z)
+	|> filter(fn: (r) => r._field == "gnss" and
+			     r._value > 20.0)
+	|> count()
+	
+--SELECT COUNT(*) from dpi WHERE gnss>20.0 AND gnss<25.0 AND timestamp BETWEEN '2023-01-04' AND '2023-01-05'
+from(bucket:"DPI")
+	|> range(start: 2023-01-04T00:00:00Z, stop: 2023-01-05T00:00:00Z)
+	|> filter(fn: (r) => r._field == "gnss" and
+			     r._value > 20.0 and
+			     r._value < 25.0)
+	|> count()
+	
+--SELECT * from dpi WHERE gnss>20.0 AND gnss<25.0 AND timestamp BETWEEN '2023-01-04' AND '2023-01-05'
+from(bucket:"DPI")
+	|> range(start: 2023-01-04T00:00:00Z, stop: 2023-01-05T00:00:00Z)
+	|> filter(fn: (r) => r._field == "gnss" and
+			     r._value > 20.0 and
+			     r._value < 25.0)

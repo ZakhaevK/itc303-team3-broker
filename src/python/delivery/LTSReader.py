@@ -137,7 +137,7 @@ def parse_msg(msg):
         measures = ""
         for measurement in measurements:
             measurement_name = clean_names(measurement['name'])
-            measurement_value = measurement['value']
+            measurement_value = (measurement['value'])
 
             #TODO: fix me
             if measurement_value == "NaN" or measurement_name == "Device":
@@ -160,7 +160,7 @@ def clean_names(msg: str) -> str:
     Column name must not contain . -
     """
     msg = msg.replace(" ", "_")
-    translation_table = str.maketrans("", "", "\n\r?,:\"'\\/.+*~%.-")
+    translation_table = str.maketrans("", "", "\n\r?,:\"'\\/+*~%.-")
     return msg.translate(translation_table)
 
 
