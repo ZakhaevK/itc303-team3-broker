@@ -2,7 +2,6 @@ import subprocess
 import os
 import time
 from influx_frame import *
-import pika
 
 # MQ stuff
 mq_user = 'broker'
@@ -26,6 +25,17 @@ def count_lines(test_file_name):
     """
     file_path = os.path.join(os.path.dirname(__file__), test_file_name)
     return sum(1 for _ in open(file_path))
+
+def count_measurements(test_file_name, word):
+    """
+    mainly for influx, counts the measurements in a file (ie how many "names" there are)
+    """
+    count = 0
+    file_path = os.path.join(os.path.dirname(__file__), test_file_name)
+    with open(file_path, 'r') as file:
+        for line in file:
+            count += line.lower().count(word.lower())
+    return count
 
 
 def get_test_msgs(test_file_name, n):

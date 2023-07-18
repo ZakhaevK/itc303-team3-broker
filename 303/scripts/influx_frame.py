@@ -39,9 +39,17 @@ def get_count() -> str:
             |> count()
             '''
     result = query_api.query(query=query)
+    count = 0
+    results = []
+    for table in result:
+        for record in table.records:
+            count+=1
+            results.append((record.get_field(), record.get_value()))
+    #print(count)
+
     #records = result[0].records[0]
-    print(result[0])
-    return str(result[0]).split(',')[1].split(':')[1].strip()
+    #print(result[0])
+    return str(count)
 
 
 #TODO: implement this

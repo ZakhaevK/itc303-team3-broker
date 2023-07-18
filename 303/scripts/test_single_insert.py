@@ -9,10 +9,10 @@ GROUP_SIZE=200
 def run_single_test(test_file_name):
     msg_gen = get_test_msgs(test_file_name, BATCH_SIZE)
     poll_state = PollState()
-    poll_state.num_tests = count_lines(test_file_name)
+    poll_state.num_tests = count_measurements(test_file_name, "name")
 
     print("SINGLE_INSERT:")
-    print(f"Total Messages: {poll_state.num_tests}")
+    print(f"Total Messages: {count_lines(test_file_name)}")
 
     poll_state.start_time = time.time()
 
