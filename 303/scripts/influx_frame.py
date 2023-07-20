@@ -63,9 +63,10 @@ def clean_up_db():
 
 #TODO: IMPLEMENT THIS
 def query_db(msg: str):
-    return "0"
-#   return requests.get(
-#       f'http://{hostname}:{receive_port}/exp',
-#       {
-#           'query':f'{msg}'
-#       }).text
+   return requests.get(
+       f'http://localhost:8086/exp',
+      {
+          'query':f'{msg}'
+       }).text
+       
+   
