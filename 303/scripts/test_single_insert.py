@@ -13,6 +13,7 @@ def run_single_test(test_file_name):
 
     print("SINGLE_INSERT:")
     print(f"Total Messages: {count_lines(test_file_name)}")
+    print(f"Total Measurements: {poll_state.num_tests}")
 
     poll_state.start_time = time.time()
 
