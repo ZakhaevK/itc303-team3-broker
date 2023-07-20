@@ -30,7 +30,7 @@ def count_measurements(test_file_name, word):
     """
     mainly for influx, counts the measurements in a file (ie how many "names" there are)
     """
-    count = 0
+    count = -1
     file_path = os.path.join(os.path.dirname(__file__), test_file_name)
     with open(file_path, 'r') as file:
         for line in file:
