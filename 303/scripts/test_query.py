@@ -1,33 +1,36 @@
 import time
 import sys
-from test_bulk_insert import GROUP_SIZE
 from test_frame import *
 
 
-BATCH_SIZE=100
-GROUP_SIZE=100
-ITERATIONS=100
-
-
 def run_query_test(test_file_name):
-    msg_gen = get_test_msgs(test_file_name, BATCH_SIZE)
+    with open(test_file_name, "r") as file:
+        queries = file.read()
+        
+    query_list = [query.strip() for query in queries.split('\n\n') if query.strip()]
+    
+    #print("Queries in the file:")
+    for idx, query in enumerate(query_list):
+        print(f"Query {idx + 1}:\n{query}")
+    
     poll_state = PollState()
-    poll_state.num_tests = count_lines(test_file_name)
+    poll_state.num_tests = len(query_list)
 
     print("QUERY_TESTS:")
     print(f"Total Queries: {poll_state.num_tests}")
-    print(f"Total Iterations: {ITERATIONS}")
 
     poll_state.start_time = time.time()
 
-    for msgs in msg_gen:
-        for msg in msgs:
-            for i in range(ITERATIONS+1):
-                query_db(msg)
+    for msg in query_list:
+        try:
+            result = query_db(msg)
+            print(result)
+        except Exception as e:
+            print(f"Error executing query: {e}")
 
     taken = time.time() - poll_state.start_time
     print(f'Time Taken: {taken}')
-    print(f'Per Query: {taken / (poll_state.num_tests+ITERATIONS)}')
+    print(f'Per Query: {taken / (poll_state.num_tests)}')
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

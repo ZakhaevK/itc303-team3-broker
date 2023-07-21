@@ -62,12 +62,19 @@ def clean_up_db():
 #       }).text
 
 #TODO: IMPLEMENT THIS
-def query_db(msg: str):
-    response = requests.get(f'http://localhost:8086/exp',
-    {
-        'query':f'{msg}'
-        }).text
-    print(response)
-    return response
-       
+def query_db(query: str):
+    try:
+        tables = query_api.query(query)
+        
+        results = []
+        for table in tables:
+            for record in table.records:
+                print(query)
+                print(record)
+                results.append(record.values)     
+        return results
+    except Exception as e:
+        print(f"Error executing query: {e}")
+        return []
+
    
