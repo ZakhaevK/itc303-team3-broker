@@ -211,7 +211,7 @@ services:
     working_dir: "/home/broker/python"
     entrypoint: ["python", "-m", "delivery.LTSReader"]
 
-  lts:
+  bulky_lts:
     image: broker/python-base
     restart: unless-stopped
     env_file: 
