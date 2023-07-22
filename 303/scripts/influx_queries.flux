@@ -1,7 +1,7 @@
 from(bucket:"DPI")
-	|> range(start: 2023-01-01T00:00:00Z)
-	|> group(columns: ["_measurement"])
+	|> range(start: 0)
 	|> count()
+	|> yield(name: "count")
 
 from(bucket:"DPI")
 	|> range(start: 2023-01-01T00:00:00Z)
@@ -23,7 +23,7 @@ from(bucket:"DPI")
 
 from(bucket:"DPI")
 	|> range(start: 2023-01-04T00:00:00Z, stop: 2023-01-05T00:00:00Z)
-	|> count()
+	|> aggregateWindow(every: 1d, fn: count)
 
 from(bucket:"DPI")
 	|> range(start: 2023-01-04T00:00:00Z, stop: 2023-01-05T00:00:00Z)

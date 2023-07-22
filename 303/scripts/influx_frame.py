@@ -69,8 +69,8 @@ def query_db(query: str):
         results = []
         for table in tables:
             for record in table.records:
-                print(query)
-                print(record)
+                #print(query)
+                #print(record)
                 results.append(record.values)     
         return results
     except Exception as e:
