@@ -9,10 +9,11 @@ GROUP_SIZE=200
 def run_bulk_test(test_file_name):
     msg_gen = get_test_msgs(test_file_name, BATCH_SIZE)
     poll_state = PollState()
-    poll_state.num_tests = count_lines(test_file_name)
+    poll_state.num_tests = count_measurements(test_file_name, "name")
 
     print("BULKY_INSERTS:")
-    print(f"Total Messages: {poll_state.num_tests}")
+    print(f"Total Messages: {count_lines(test_file_name)}")
+    print(f"Total Measurements: {poll_state.num_tests}")
 
     poll_state.start_time = time.time()
 
@@ -31,9 +32,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        clean_up_db()
+        #clean_up_db()
         run_bulk_test(sys.argv[1])
         #clean_up_db()
     except KeyboardInterrupt:
-        clean_up_db()
+        #clean_up_db()
         sys.exit(0)
