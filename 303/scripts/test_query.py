@@ -10,8 +10,8 @@ def run_query_test(test_file_name):
     query_list = [query.strip() for query in queries.split('\n\n') if query.strip()]
     
     #print("Queries in the file:")
-    #for idx, query in enumerate(query_list):
-        #print(f"Query {idx + 1}:\n{query}")
+    for idx, query in enumerate(query_list):
+        print(f"Query {idx + 1}:\n{query}")
     
     poll_state = PollState()
     poll_state.num_tests = len(query_list)
