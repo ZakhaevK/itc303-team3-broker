@@ -1,19 +1,23 @@
 from(bucket:"DPI")
 	|> range(start: 0)
+	|> group()
 	|> count()
-	|> yield(name: "count")
 
 from(bucket:"DPI")
-	|> range(start: 2023-01-01T00:00:00Z)
+	|> range(start: 2022-12-31T13:00:00Z)
+	|> yield(name: "result2")
 
 from(bucket: "DPI")
-	|> range(start: 2023-01-01T00:00:00Z)
+	|> range(start: 2022-12-31T13:00:00Z)
 	|> filter(fn: (r) => r._field == "1_Temperature")
 	|> filter(fn: (r) => r._value < 10.0)
+	|> yield(name: "result3")
 
 from(bucket:"DPI")
-	|> range(start: 2023-01-05T05:00:00.000000Z)
+	|> range(start: 2023-01-04T18:00:00.000000Z)
+	|> group()
 	|> count()
+	|> yield(name: "count2")
 
 from(bucket:"DPI")
 	|> range(start: 2023-01-05T05:00:00.000000Z)
