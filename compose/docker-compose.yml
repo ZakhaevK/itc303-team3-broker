@@ -211,5 +211,19 @@ services:
     working_dir: "/home/broker/python"
     entrypoint: ["python", "-m", "delivery.LTSReader"]
 
+  lts:
+    image: broker/python-base
+    restart: unless-stopped
+    env_file: 
+      - .env
+    depends_on:
+      mq:
+        condition: "service_healthy"
+    volumes:
+      - ../src/python:/home/broker/python
+      - ./shared:/shared
+    working_dir: "/home/broker/python"
+    entrypoint: ["python", "-m", "delivery.BulkyLTS"]
+
 volumes:
   shared:
