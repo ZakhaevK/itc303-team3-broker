@@ -43,18 +43,20 @@ def extract_value(message):
     return json_dict["timeseries"][0]["value"]
 
 
-def get_db_response():
+def get_db_response(query):
     host = "localhost"
     port = "9090"    
     response = requests.get("http://" + host + ":" + port + "/api/v1/query",
-        params= {"query" : "sensor_value"}).text
+        params= {"query" : query}).text
     response = json.loads(response)
     #print(response)
     return response    
 
 def single_insert_time_test():
-    msg, val = generate_message()
-    print(msg)
+    msg = ""
+    # print(msg)
+    with open("single_1", "r") as msg_file:
+        msg = msg_file.readline()
     start_time = time.time()
     send_message(msg)
     while True:
@@ -69,7 +71,7 @@ def single_insert_time_test():
 def multi_insert_time_test():
     time.sleep(2)
     messages = []
-    with open("msgs", "r") as msg_file:
+    with open("bulk_1000", "r") as msg_file:
         for index, line in enumerate(msg_file):
             messages.append(line)
             if index == 999:
@@ -96,7 +98,7 @@ def multi_insert_time_test():
 
 def query_time_test():
     start_time = time.time()
-    response = get_db_response()
+    response = get_db_response("sensor_value")
     end_time = time.time()
     print("Time for a single query: " + str(end_time - start_time))
 
