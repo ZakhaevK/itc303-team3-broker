@@ -4,6 +4,7 @@ import random
 import requests
 import json
 import time
+from datetime import datetime
 
 # helper
 def send_message(msg: str):
@@ -47,10 +48,19 @@ def get_db_response(query):
     host = "localhost"
     port = "9090"    
     response = requests.get("http://" + host + ":" + port + "/api/v1/query",
-        params= {"query" : query}).text
+        params= {"query" : query }).text
     response = json.loads(response)
     #print(response)
     return response    
+
+def get_db_response_range(query, start, end):
+    host = "localhost"
+    port = "9090"    
+    response = requests.get("http://" + host + ":" + port + "/api/v1/query_range",
+        params= {"query" : query , "start": start, "end" : end, "step" : "300ms"}).text
+    response = json.loads(response)
+    #print(response)
+    return response 
 
 def single_insert_time_test():
     msg = ""
@@ -98,7 +108,15 @@ def multi_insert_time_test():
 
 def query_time_test():
     start_time = time.time()
-    response = get_db_response("sensor_value")
+    print(get_db_response("count(sensor_value)"))    
+    print(get_db_response("sensor_value"))    
+    print(get_db_response_range("sensor_value", "2023-01-05T05:00:00.000000Z", datetime.now().isoformat()))
+    print(get_db_response_range("sensor_value", "2023-01-04T00:00:00.000000Z", "2023-01-05T00:00:00.000000Z"))
+    print(get_db_response_range("count(sensor_value)", "2023-01-04T00:00:00.000000Z", "2023-01-05T00:00:00.000000Z"))    
+    print(get_db_response_range("sensor_value{name=\"gnss\"} and sensor_value > 20", "2023-01-04T00:00:00.000000Z", "2023-01-05T00:00:00.000000Z"))
+    print(get_db_response_range("count(sensor_value{name=\"gnss\"} and sensor_value > 20)", "2023-01-04T00:00:00.000000Z", "2023-01-05T00:00:00.000000Z"))
+    print(get_db_response_range("count(sensor_value{name=\"gnss\"} and sensor_value > 20 and sensor_value < 25)", "2023-01-04T00:00:00.000000Z", "2023-01-05T00:00:00.000000Z"))
+    print(get_db_response_range("sensor_value{name=\"gnss\"} and sensor_value > 20 and sensor_value < 25", "2023-01-04T00:00:00.000000Z", "2023-01-05T00:00:00.000000Z"))
     end_time = time.time()
     print("Time for a single query: " + str(end_time - start_time))
 

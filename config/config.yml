@@ -6,6 +6,7 @@ modules:
       type: object
       path: "{ @ }"
       help: sensor and associated values 
+      epochTimestamp: "{ $.timestamp }"
       labels:
         broker_id: "{ $.broker_correlation_id }" 
         name: "{ $.timeseries[0].name }"
