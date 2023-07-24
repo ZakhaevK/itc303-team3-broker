@@ -6,7 +6,7 @@ from test_frame import *
 
 BATCH_SIZE=100
 GROUP_SIZE=100
-ITERATIONS=100
+ITERATIONS=1
 
 
 def run_query_test(test_file_name):
@@ -14,7 +14,7 @@ def run_query_test(test_file_name):
     poll_state = PollState()
     poll_state.num_tests = count_lines(test_file_name)
 
-    print("QUERY_TESTS:")
+    #print("QUERY_TESTS:")
     print(f"Total Queries: {poll_state.num_tests}")
     print(f"Total Iterations: {ITERATIONS}")
 

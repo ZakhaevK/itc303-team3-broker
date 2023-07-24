@@ -205,7 +205,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ../tsdb:/var/lib/questdb"
+      - ../tsdb:/var/lib/questdb
 
   lts:
     image: broker/python-base

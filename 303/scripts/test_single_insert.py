@@ -11,8 +11,8 @@ def run_single_test(test_file_name):
     poll_state = PollState()
     poll_state.num_tests = count_lines(test_file_name)
 
-    print("SINGLE_INSERT:")
-    print(f"Total Messages: {poll_state.num_tests}")
+    #print("SINGLE_INSERT:")
+    print(f"\nTotal Messages: {poll_state.num_tests}")
 
     poll_state.start_time = time.time()
 
@@ -29,9 +29,10 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        create_table()
         clean_up_db()
         run_single_test(sys.argv[1])
         clean_up_db()
     except KeyboardInterrupt:
-        clean_up_db()
+        #clean_up_db()
         sys.exit(0)

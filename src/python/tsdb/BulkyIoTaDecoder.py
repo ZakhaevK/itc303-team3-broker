@@ -6,6 +6,7 @@ into time series data and inserts into QuestDB time series database
 skeleton is based off LTSReader.py
 """
 import asyncio, json, logging, signal, sys
+import time
 
 from pika.exchange_type import ExchangeType
 import api.client.RabbitMQ as mq
@@ -20,6 +21,7 @@ from dateutil import parser
 bucket_name = "dpi"
 tsdb_host_name = "quest"
 tsdb_port = 9009
+max_retries = 10
 
 rx_channel = None
 mq_client = None
@@ -137,20 +139,28 @@ def insert_line_protocol(syms: str, cols: str, timestamp: str,
     """
     This function will insert a message via line protocol to questdb
     """
-    try:
-        with Sender(hostname,port) as sender:
-            sender.row(
-                bucket,
-                symbols=syms,
-                columns=cols,
-                at=timestamp
-            )
-            #sender.flush()
-        return 200
-    except IngressError as e:
-        sys.stderr.write(f'error: {e}\n')
-        return 400
-
+    retries = 0
+    while retries < max_retries:
+        try:
+            with Sender(hostname,port) as sender:
+                sender.row(
+                    bucket,
+                    symbols=syms,
+                    columns=cols,
+                    at=timestamp
+                )
+                #sender.flush()
+            return 200
+        except IngressError as e:
+            if "error 99" in str(e):
+                retries += 1
+                sys.stderr.write(f'error: {e}\n{retries}/{max_retries}-----RETRYING IN 5S-----')
+                time.sleep(5)
+            else:
+                sys.stderr.write(f'error: {e}\n')
+                return 400
+    sys.stderr.write(f'Maximum retries reached. Failed to insert data.\n')
+    return 500
 
 def flush(hostname=tsdb_host_name, port=tsdb_port):
     try:

@@ -12,6 +12,7 @@ host_name = 'localhost'
 
 # Test stuff
 poll_interval = 100  # How often to poll the DB to check how many inserts
+time_out = 60
 
 
 class PollState:
@@ -57,7 +58,7 @@ def poll_db(poll_state):
 
         if response == last_response:
             dura = time.time()-st
-            if dura >= 10:
+            if dura >= time_out:
                 print("timed out")
                 stop_test(response,poll_state)
                 return

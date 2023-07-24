@@ -236,3 +236,9 @@ backup-db/
 tags
 303/scripts/msgs
 303/scripts/smsgs
+303/scripts/msgs10
+303/scripts/msgs100
+303/scripts/msgs10k
+303/scripts/msgs1k
+303/scripts/msgs25k
+tsdb
