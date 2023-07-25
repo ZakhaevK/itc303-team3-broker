@@ -6,16 +6,16 @@ from test_frame import *
 
 BATCH_SIZE=100
 GROUP_SIZE=100
-ITERATIONS=1
+#ITERATIONS=1
 
 
-def run_query_test(test_file_name):
+def run_query_test(test_file_name: str, ITERATIONS: int):
     msg_gen = get_test_msgs(test_file_name, BATCH_SIZE)
     poll_state = PollState()
     poll_state.num_tests = count_lines(test_file_name)
 
     #print("QUERY_TESTS:")
-    print(f"Total Queries: {poll_state.num_tests}")
+    print(f"\nTotal Queries: {poll_state.num_tests}")
     print(f"Total Iterations: {ITERATIONS}")
 
     poll_state.start_time = time.time()
@@ -30,13 +30,13 @@ def run_query_test(test_file_name):
     print(f'Per Query: {taken / (poll_state.num_tests+ITERATIONS)}')
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         print("requires arg: test_file_name")
         sys.exit(1)
 
     try:
         #clean_up_db()
-        run_query_test(sys.argv[1])
+        run_query_test(sys.argv[1], int(sys.argv[2]))
         #clean_up_db()
     except KeyboardInterrupt:
         #clean_up_db()

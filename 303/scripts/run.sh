@@ -11,7 +11,7 @@ python generate_messages.py 1000 25 >msgs25k
 echo "_______________RUNNING SINGLE TESTS_______________"
 python test_single_insert.py msgs10
 python test_single_insert.py msgs100
-#python test_single_insert.py msgs1k
+python test_single_insert.py msgs1k
 #python test_single_insert.py msgs10k
 #python test_single_insert.py msgs25k
 
@@ -25,4 +25,5 @@ python test_bulk_insert.py msgs25k
 
 # Run test_query.py
 echo -e "\n_______________RUNNING QUERY TESTS_______________"
-python test_query.py quest_queries
+python test_query.py quest_queries 1
+python test_query.py quest_queries 100

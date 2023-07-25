@@ -3,7 +3,7 @@ import sys
 from test_frame import *
 
 BATCH_SIZE=10000
-BLOCK_SIZE=64*1024 #questdb auto flushes at 64kb, so probably most efficient
+BLOCK_SIZE=100*1024 #questdb auto flushes at 64kb, so probably most efficient
 GROUP_SIZE=200
 
 def run_bulk_test(test_file_name):
@@ -21,6 +21,7 @@ def run_bulk_test(test_file_name):
         #grouped_msgs = append_lines_in_groups(msgs, GROUP_SIZE)
         for msg in grouped_msgs:
             send_msg(msg, "TEST_BULK", "bulky_ts_queue")
+            time.sleep(0.1)
 
     poll_db(poll_state)
 
