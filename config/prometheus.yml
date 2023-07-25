@@ -21,7 +21,7 @@
 
   ## gather the metrics from third party json sources, via the json exporter
   - job_name: json
-    scrape_interval: 0s20ms
+    scrape_interval: 0s300ms
     metrics_path: /probe
     params:
       module: [default]
