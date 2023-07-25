@@ -17,6 +17,7 @@ class PollState:
         #self.should_poll = True
         self.start_time = 0.0
         self.num_tests = 0
+        self.num_measurements = 0
 
 
 def count_lines(test_file_name):
@@ -25,6 +26,7 @@ def count_lines(test_file_name):
     """
     file_path = os.path.join(os.path.dirname(__file__), test_file_name)
     return sum(1 for _ in open(file_path))
+
 
 def count_measurements(test_file_name, word):
     """
@@ -58,14 +60,14 @@ def poll_db(poll_state):
     while True:
         response = get_count()
 
-        if response == str(poll_state.num_tests):
+        if response == str(poll_state.num_measurements):
             stop_test(response,poll_state)
             return
 
         if response == last_response:
             dura = time.time()-st
-            if dura >= 10:
-                print("timed out")
+            if dura >= 5:
+                #print("timed out")
                 stop_test(response,poll_state)
                 return
         else:
@@ -79,8 +81,8 @@ def poll_db(poll_state):
 def stop_test(msg: str, poll_state):
     taken = time.time() - poll_state.start_time
     print(f'Time Taken: {taken}')
-    print(f'Per Test: {taken / poll_state.num_tests}')
-
+    print(f'Per Message: {taken / poll_state.num_tests}')
+    print(f'Measurements in db: {poll_state.num_measurements}')
 
 
 def send_msg(msg: str, exchange='lts_exchange', queue='ltsreader_logical_msg_queue'):

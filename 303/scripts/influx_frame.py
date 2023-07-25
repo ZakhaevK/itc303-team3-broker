@@ -17,7 +17,7 @@ bucket_name="DPI"
 org = "ITC303"
 url = "http://localhost:8086"
 token = get_token()
-print(token)
+#print(token)
 
 client = InfluxDBClient(url=url, token=token, org=org)
 query_api = client.query_api()
@@ -54,12 +54,12 @@ def get_count() -> str:
 
 #TODO: implement this
 def clean_up_db():
-    return "0"
-#   requests.get(
-#       f'http://{hostname}:{receive_port}/exp',
-#       {
-#           'query':f'DROP TABLE {bucket_name}'
-#       }).text
+    command = [
+        'docker', 'exec', 'test-influxdb-1', 'influx',
+        'delete', '--bucket', 'DPI', '--start', '1970-01-01T00:00:00Z',
+        '--stop','2024-01-01T00:00:00Z'
+    ]
+    return subprocess.run(command, capture_output=True, text=True)
 
 #TODO: IMPLEMENT THIS
 def query_db(query: str):
@@ -69,8 +69,8 @@ def query_db(query: str):
         results = []
         for table in tables:
             for record in table.records:
-                print(query)
-                print(record)
+                #print(query)
+                #print(record)
                 results.append(record.values)     
         return results
     except Exception as e:
