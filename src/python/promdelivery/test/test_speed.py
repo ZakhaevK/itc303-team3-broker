@@ -44,7 +44,7 @@ def extract_value(message):
     return json_dict["timeseries"][0]["value"]
 
 
-def get_db_response(query):
+def get_db_response(query = "sensor_value"):
     host = "localhost"
     port = "9090"    
     response = requests.get("http://" + host + ":" + port + "/api/v1/query",
@@ -57,7 +57,7 @@ def get_db_response_range(query, start, end):
     host = "localhost"
     port = "9090"    
     response = requests.get("http://" + host + ":" + port + "/api/v1/query_range",
-        params= {"query" : query , "start": start, "end" : end, "step" : "300ms"}).text
+        params= {"query" : query , "start": start, "end" : end, "step" : "30s"}).text
     response = json.loads(response)
     #print(response)
     return response 
@@ -67,12 +67,13 @@ def single_insert_time_test():
     # print(msg)
     with open("single_1", "r") as msg_file:
         msg = msg_file.readline()
+    val = extract_value(msg)    
     start_time = time.time()
     send_message(msg)
     while True:
         response = get_db_response()
-        test_val = response["data"]["result"][0]["value"][1]
-        if val == (test_val):
+        # test_val = response["data"]["result"][0]["value"][1]
+        if len(response["data"]["result"]) > 0 and float(val) == float(response["data"]["result"][0]["value"][1]):
             break 
     end_time = time.time()
     total_time = end_time - start_time
@@ -97,10 +98,11 @@ def multi_insert_time_test():
         # print("progressing!")
         while True:
             response = get_db_response()
-            test_val = response["data"]["result"][0]["value"][1]
+            # test_val = response["data"]["result"][0]["value"][1]
             # print(str(i) + ", " + str(val) + ", " + str(test_val))
             # time.sleep(1)
-            if (val) == eval(test_val):
+            # print(val, response["data"]["result"][0]["value"][1])
+            if len(response["data"]["result"]) > 0 and (val) == eval(response["data"]["result"][0]["value"][1]):
                 break               
     end_time = time.time()
     total_time = end_time - start_time
@@ -110,7 +112,7 @@ def query_time_test():
     start_time = time.time()
     print(get_db_response("count(sensor_value)"))    
     print(get_db_response("sensor_value"))    
-    print(get_db_response_range("sensor_value", "2023-01-05T05:00:00.000000Z", datetime.now().isoformat()))
+    print(get_db_response_range("sensor_value", "2023-01-05T05:00:00.000000Z", datetime.now().isoformat() + "Z"))
     print(get_db_response_range("sensor_value", "2023-01-04T00:00:00.000000Z", "2023-01-05T00:00:00.000000Z"))
     print(get_db_response_range("count(sensor_value)", "2023-01-04T00:00:00.000000Z", "2023-01-05T00:00:00.000000Z"))    
     print(get_db_response_range("sensor_value{name=\"gnss\"} and sensor_value > 20", "2023-01-04T00:00:00.000000Z", "2023-01-05T00:00:00.000000Z"))
@@ -118,7 +120,7 @@ def query_time_test():
     print(get_db_response_range("count(sensor_value{name=\"gnss\"} and sensor_value > 20 and sensor_value < 25)", "2023-01-04T00:00:00.000000Z", "2023-01-05T00:00:00.000000Z"))
     print(get_db_response_range("sensor_value{name=\"gnss\"} and sensor_value > 20 and sensor_value < 25", "2023-01-04T00:00:00.000000Z", "2023-01-05T00:00:00.000000Z"))
     end_time = time.time()
-    print("Time for a single query: " + str(end_time - start_time))
+    print("Time for all queries: " + str(end_time - start_time))
 
 if __name__ == "__main__":
     single_insert_time_test()

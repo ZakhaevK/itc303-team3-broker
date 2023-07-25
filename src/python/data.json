@@ -1,1 +1,1 @@
-{"broker_correlation_id": "83d04e6f-db16-4280-8337-53f11b2335c6", "p_uid": 0, "l_uid": 0, "timestamp": "2023-01-01T06:00:00.000000Z", "timeseries": [{"name": "Temp", "value": 2.9223951650141125}, {"name": "fault", "value": 29.831297733835978}]}
+{"broker_correlation_id": "83d04e6f-db16-4280-8337-53f11b2335c6", "l_uid": 33, "p_uid": 33, "timestamp": "2023-01-02T10:00:00.000000Z", "timeseries": [{"name": "Processor_temperature", "value": 22.954910834862094}]}
