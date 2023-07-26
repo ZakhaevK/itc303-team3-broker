@@ -1,39 +1,77 @@
 #! /usr/bin/python3
 
+from datetime import datetime
+import time
+from dateutil import parser
 import influxdb_client, os, time
-from influxdb_client import InfluxDBClient, Point, WritePrecision
+from influxdb_client import InfluxDBClient, Point, WriteOptions, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 import json
-from time import gmtime, strftime
-from datetime import datetime
-from dateutil import parser
+import math
 
+#variables for connecting to the db
 token = os.environ.get("INFLUXDB_TOKEN")
 org = "ITC303"
 url = "http://localhost:8086"
 
+#connect to the db
 client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
 
+#create bucket for data storage
 bucket="DPI"
 
+#create a writeAPI client
 write_api = client.write_api(write_options=SYNCHRONOUS)
 
+"""
 def parse_input_file() -> None:
   f = open("../../docs/sample_messages", "r")
   l = f.readlines()
   for line in l:
-    parse_json_msg(json.loads(line))
+    return msg_parser(json.loads(line))
 
-def parse_json_msg(msg: str) -> None:
-  measurement = 1
-  tag1 = 1
-  tagvalue1 = 1
-  tag2 = 1
-  tagvalue2 = 1
-  field1 = 1
-  fieldvalue1 = 1
-  timestamp = parser.parse(msg['timestamp'])
-  insert_msg(measurement,tag1,tagvalue1,tag2,tagvalue2,field1,fieldvalue1,timestamp)
+def msg_parser(msg: str) -> None:
+    ret = f'DPI,p_uid={msg["p_uid"]},l_uid={msg["l_uid"]} '
+    ret += ",".join([f"{i['name']}={i['value']}" for i in msg["timeseries"]])
+    ret += " " + str(time.mktime(parser.parse(msg['timestamp']).timetuple()))
+    return ret
+"""
+
+#define a function to parse json message and convert to influxdb line protocol
+def json_to_line_protocol(json_msg):
+  parsed_msg = json.loads(json_msg)
+  l_uid = parsed_msg['l_uid']
+  p_uid = parsed_msg['p_uid']
+  timestamp = int(time.mktime(parser.parse(parsed_msg['timestamp']).timetuple())*1000)
+  #ts_datetime = datetime.fromisoformat(timestamp)
+  #ts_unix = int(ts_datetime.timestamp()*1000)
+  measurements = parsed_msg['timeseries']
+  lines = []
+  for measurement in measurements:
+    measurement_name = measurement['name']
+    measurement_value = measurement['value']
+    if measurement_value == "NaN":
+     continue
+    if measurement_name == "Device":
+      continue
+    line = f"{measurement_name},l_uid={l_uid},p_uid={p_uid} {measurement_name}={measurement_value} {timestamp}"
+    lines.append(line)
+  return "\n".join(lines)
+
+
+#open json file
+with open("../../docs/sample_messages", "r") as f:
+  json_msgs = f.readlines()
+  lines = [json_to_line_protocol(msg) for msg in json_msgs]
+#lines = parse_input_file()
+
+#print(lines)
+
+
+#write lines
+#write_api = client.write_api(write_options=WriteOptions())
+write_api.write(bucket=bucket, org=org, record=lines, write_precision="ms")
+
 #example json msg
 #
 #{
@@ -56,21 +94,10 @@ def parse_json_msg(msg: str) -> None:
 # ]
 #}
 
-def insert_msg(measurement,tag1,tagvalue1,tag2,tagvalue2,field1,fieldvalue1,timestamp):
-  point = (
-    Point(measurement)
-    .tag("tagname1", "tagvalue1")
-    .field("field1", value)
-    .time("timestamp")
-  )
-  write_api.write(bucket="DPI", org="ITC303", record=point)
-  time.sleep(1) # separate points by 1 second
-
 query_api = client.query_api()
 
 query = """from(bucket: "DPI")
-  |> range(start: 2023-04-01T00:00:00z)
-  |> filter(fn: (r) => r._measurement == "1")"""
+  |> range(start: 0, stop: now())"""
 tables = query_api.query(query, org="ITC303")
 
 for table in tables:

@@ -56,12 +56,12 @@ async def main():
     global mq_client, rx_channel, finish
 
     logging.info('===============================================================')
-    logging.info('               STARTING LOGICAL_TIMESERIES TEST READER')
+    logging.info('               STARTING BULKY LOGICAL_TIMESERIES TEST READER')
     logging.info('===============================================================')
 
     # The routing key is ignored by fanout exchanges so it does not need to be a constant.
     # Change the queue name. This code should change to use a server generated queue name.
-    rx_channel = mq.RxChannel(BrokerConstants.LOGICAL_TIMESERIES_EXCHANGE_NAME, exchange_type=ExchangeType.fanout, queue_name='ltsreader_logical_msg_queue', on_message=on_message, routing_key='logical_timeseries')
+    rx_channel = mq.RxChannel("TEST_BULK", exchange_type=ExchangeType.fanout, queue_name='bulky_ts_queue', on_message=on_message, routing_key='bulky_timeseries')
     mq_client = mq.RabbitMQConnection(channels=[rx_channel])
     asyncio.create_task(mq_client.connect())
 
@@ -102,14 +102,16 @@ def on_message(channel, method, properties, body):
     client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
     write_api = client.write_api(write_options=SYNCHRONOUS)
 
-    tosend = []
-    parsed = parse_msg(body)
-    if parsed is not None:
-        tosend.append(parsed)
-        try:
-            write_api.write(bucket=bucket, org=org, record=tosend, write_precision="s")
-        except Exception as e:
-            logging.info(f'Error processing message: {e}\n')
+    msg_list = json.loads(body)
+    for msg in msg_list["data"]:
+        tosend = []
+        parsed = parse_msg(msg)
+        if parsed is not None:
+            tosend.append(parsed)
+            try:
+                write_api.write(bucket=bucket, org=org, record=tosend, write_precision="s")
+            except Exception as e:
+                logging.info(f'Error processing message: {e}\n')
     #
     # Message processing goes here
     #
