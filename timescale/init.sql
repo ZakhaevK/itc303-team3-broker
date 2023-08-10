@@ -8,7 +8,6 @@ CREATE TABLE timeseries (
                          );
                          
 CREATE TABLE id_pairings (
-                         pairing_id BIGSERIAL PRIMARY KEY,
-                         l_uid INTEGER NOT NULL,
+                         l_uid INTEGER PRIMARY KEY,
                          p_uid INTEGER NOT NULL
                          );

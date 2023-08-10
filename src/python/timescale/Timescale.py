@@ -143,9 +143,8 @@ def query_all_pairings(connection: str = CONNECTION, table: str = "id_pairings")
     for row in rows:
         # Convert datetime object to string before loading as JSON
         json_obj = {
-            "pairing_id": row[0],
-            "l_uid": row[1],
-            "p_uid": row[2],
+            "l_uid": row[0],
+            "p_uid": row[1],
         }
         json_data.append(json_obj)
     return json_data
@@ -246,9 +245,7 @@ def parse_json_file(filename: str) -> list:
             
     return parsed_data
 
-
-
-def insert_data_to_db(filename: str, connection: str = CONNECTION, table_name: str = tsdb_table) -> int:
+def insert_file_to_db(filename: str, connection: str = CONNECTION, table_name: str = tsdb_table) -> int:
 
     # Parse the JSON file
     parsed_data = parse_json_file(filename)

@@ -98,45 +98,57 @@ def adjust_pairings(luid: int, puid: int):
     query = f"SELECT * FROM id_pairings WHERE l_uid = {luid} OR p_uid = {puid};"
     results = ts.send_query(query, table="id_pairings")
     
-    luid_exists = False
-    puid_exists = False
-    
-    # Analyze the results
-    for row in results:
-        if row[1] == luid:
-            luid_exists = True
-        if row[2] == puid:
-            puid_exists = True
-        if luid_exists or puid_exists:
-            break
+    # Check if both l_uid and p_uid exist in the same row
+    entry_exists_query = f"SELECT COUNT(*) FROM id_pairings WHERE l_uid = {luid} AND p_uid = {puid};"
+    entry_exists_result = ts.send_query(entry_exists_query, table="id_pairings")
+    entry_exists = entry_exists_result[0][0] > 0
 
-    # Perform the actions
-    if luid_exists and not puid_exists:
+    if entry_exists:
+        logging.info("ID pairing exists, no changes needed")
+        return
+    
+    # Check if both l_uid and p_uid exist but in different rows
+    luid_exists_query = f"SELECT COUNT(*) FROM id_pairings WHERE l_uid = {luid};"
+    puid_exists_query = f"SELECT COUNT(*) FROM id_pairings WHERE p_uid = {puid};"
+
+    luid_exists_result = ts.send_query(luid_exists_query, table="id_pairings")
+    puid_exists_result = ts.send_query(puid_exists_query, table="id_pairings")
+
+    luid_exists = luid_exists_result[0][0] > 0
+    puid_exists = puid_exists_result[0][0] > 0
+ 
+    if luid_exists and puid_exists:
+        # Delete the existing rows with the given l_uid and p_uid
+        delete_query = f"DELETE FROM id_pairings WHERE l_uid = {luid} OR p_uid = {puid};"
+        ts.send_update(delete_query, table="id_pairings")
+        logging.info("Deleted rows with the given l_uid and p_uid")
+        # Insert a new row with the given l_uid and p_uid
+        insert_query = f"INSERT INTO id_pairings (l_uid, p_uid) VALUES ({luid}, {puid});"
+        ts.send_update(insert_query, table="id_pairings")
+        logging.info(f"Inserted new row with l_uid = {luid} and p_uid = {puid}")
+    elif luid_exists and not puid_exists:
         # Update the row to add the missing puid
         update_query = f"UPDATE id_pairings SET p_uid = {puid} WHERE l_uid = {luid};"
         ts.send_update(update_query, table="id_pairings")
         logging.info("Updated column to change p_uid")
-        # Delete rows that have the same p_uid but different l_uid
-        delete_query = f"DELETE FROM id_pairings WHERE p_uid = {puid} AND l_uid != {luid};"
+        # Delete rows that have the same l_uid but different p_uid
+        delete_query = f"DELETE FROM id_pairings WHERE p_uid != {puid} AND l_uid = {luid};"
         ts.send_update(delete_query, table="id_pairings")
         logging.info("Deleted rows with the same p_uid but different l_uid")
     elif not luid_exists and puid_exists:
-        # Update the row to add the missing luid
-        update_query = f"UPDATE id_pairings SET l_uid = {luid} WHERE p_uid = {puid};"
-        ts.send_update(update_query, table="id_pairings")
-        logging.info("Updated column to change l_uid")
-        # Delete rows that have the same l_uid but different p_uid
-        delete_query = f"DELETE FROM id_pairings WHERE l_uid = {luid} AND p_uid != {puid};"
+        # Delete rows that have the same p_uid but different l_uid
+        delete_query = f"DELETE FROM id_pairings WHERE l_uid != {luid} AND p_uid = {puid};"
         ts.send_update(delete_query, table="id_pairings")
         logging.info("Deleted rows with the same l_uid but different p_uid")
+        # Insert the row to add the new luid entry
+        insert_query = f"INSERT INTO id_pairings (l_uid, p_uid) VALUES ({luid}, {puid});"
+        ts.send_update(insert_query, table="id_pairings")
+        logging.info("Added new ID pairing")
     elif not luid_exists and not puid_exists:
         # Add a new row with the given luid and puid
         insert_query = f"INSERT INTO id_pairings (l_uid, p_uid) VALUES ({luid}, {puid});"
         ts.send_update(insert_query, table="id_pairings")
-        logging.info("Added new ID pairing")
-        
-    else:
-        return
+        logging.info("Added new ID pairing")  
 
 
 if __name__ == '__main__':
