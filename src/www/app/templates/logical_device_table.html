@@ -32,6 +32,39 @@
 					{% endfor %}
 				</tbody>
 			</table>
+			<div>
+				<h2 class="form-heading">Graph</h2>
+				<label for="luid">Logical ID</label>
+				<select id="luid" name="luid">
+					{% for logicalDevice in logicalDevices %}
+					<option value="{{ logicalDevice.uid }}">{{ logicalDevice.uid }}</option>
+					{% endfor %}
+				</select>
+				<div id="luid-data"></div>
+			</div>
+			<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+			<script>
+				$(document).ready(function () {
+					$('#luid').on('change', function () {
+						const selectedLuid = $(this).val();
+						// Make the request to the FastAPI application
+						fetch(`http://localhost:9898/l_uid/${selectedLuid}`)
+							.then(response => response.json())
+							.then(data => {
+								// Display the data in the #luid-data div
+								let htmlContent = '<ul>';
+								for (let record of data) {
+									htmlContent += `<li>${JSON.stringify(record)}</li>`;
+								}
+								htmlContent += '</ul>';
+								$('#luid-data').html(htmlContent);
+							})
+							.catch(error => {
+								console.error('Error fetching l_uid data:', error);
+							});
+					});
+				});
+			</script>
 		</div>
 	</section>
 

@@ -11,6 +11,17 @@ tsdb_db = os.environ.get("TSDB_DB")
 tsdb_table = os.environ.get("TSDB_TABLE")
 CONNECTION = f"postgres://{tsdb_user}:{tsdb_pass}@{tsdb_host}:{tsdb_port}/{tsdb_db}"
 
+# ---- Needed for web app at the moment ----------------
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this to be more restrictive in a production environment
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+# ---- end --------------------------------------------
 
 @app.get("/")
 async def query_tsdb(query: str = f"SELECT * FROM {tsdb_table};"):
