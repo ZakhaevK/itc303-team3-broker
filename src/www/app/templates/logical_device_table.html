@@ -40,8 +40,60 @@
 					<option value="{{ logicalDevice.uid }}">{{ logicalDevice.uid }}</option>
 					{% endfor %}
 				</select>
+				<!-- Checkbox to toggle date inputs -->
+				<div>
+					<input type="checkbox" id="dateToggle" name="dateToggle">
+					<label for="dateToggle">Specify Date Range</label>
+				</div>
+				
+				<!-- Date inputs (hidden by default) -->
+				<div id="dateInputs" style="display: none;">
+					<label for="startDate">Start Date:</label>
+					<input type="date" id="startDate" name="startDate">
+				
+					<label for="endDate">End Date:</label>
+					<input type="date" id="endDate" name="endDate">
+				</div>
+				<script>
+					$(document).ready(function () {
+						// Toggle date inputs based on checkbox state
+						$('#dateToggle').on('change', function () {
+							if ($(this).prop('checked')) {
+								$('#dateInputs').show();
+							} else {
+								$('#dateInputs').hide();
+							}
+						});
+
+						// Existing code for fetching data based on l_uid
+						$('#luid').on('change', function () {
+							const selectedLuid = $(this).val();
+							const startDate = $('#startDate').val();
+							const endDate = $('#endDate').val();
+
+							let apiUrl = `http://localhost:9898/l_uid/${selectedLuid}`;
+							if ($('#dateToggle').prop('checked')) {
+								apiUrl += `?fromdate=${startDate}&todate=${endDate}`;
+							}
+
+							fetch(apiUrl)
+								.then(response => response.json())
+								.then(data => {
+									let htmlContent = '<ul>';
+									for (let record of data) {
+										htmlContent += `<li>${JSON.stringify(record)}</li>`;
+									}
+									htmlContent += '</ul>';
+									$('#luid-data').html(htmlContent);
+								})
+								.catch(error => {
+									console.error('Error fetching l_uid data:', error);
+								});
+						});
+					});
+				</script>
 				<div id="luid-data"></div>
-			</div>
+				</div>
 			<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 			<script>
 				$(document).ready(function () {
