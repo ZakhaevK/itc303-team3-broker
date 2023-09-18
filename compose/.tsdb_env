@@ -1,3 +1,5 @@
 POSTGRES_PASSWORD=admin
 POSTGRES_PORT=5432
 POSTGRES_USER=postgres
+WALG_FILE_PREFIX=/var/lib/wal-g  # Local backup directory
+WALG_COMPRESSION_METHOD=brotli

@@ -8,3 +8,7 @@ CREATE TABLE timeseries (
                          );
                          
 SELECT create_hypertable('timeseries', 'timestamp');
+
+ALTER SYSTEM SET archive_mode TO 'on';
+ALTER SYSTEM SET archive_command TO 'wal-g wal-push %p';
+SELECT pg_reload_conf();

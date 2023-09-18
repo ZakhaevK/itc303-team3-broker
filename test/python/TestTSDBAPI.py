@@ -61,6 +61,7 @@ def test_send_and_query_message():
     generate_and_send_message("test1", 1, 1, current_time, "battery (v)", 6.66)
     
     timeout = time.time() + 10
+    time.sleep(0.2)
     while True:
         insert = check_insert("1", "1")
         if insert or time.time() > timeout:
